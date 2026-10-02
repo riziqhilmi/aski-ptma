@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicArticleController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\PublicOrganizationMemberPhotoController;
+use App\Http\Controllers\PublicDirectoryController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Member\MemberProfileController;
 use App\Http\Controllers\Admin\MembershipApplicationController as AdminMembershipApplicationController;
@@ -51,6 +52,8 @@ Route::get('/berita/{article:slug}/gambar', [PublicArticleController::class, 'co
 Route::get('/profil', [PublicPageController::class, 'profile'])->name('public.profile');
 Route::get('/kontak', [PublicPageController::class, 'contact'])->name('public.contact');
 Route::get('/struktur-organisasi/{organizationMember}/foto', PublicOrganizationMemberPhotoController::class)->name('public.organization-members.photo');
+Route::get('/anggota', [PublicDirectoryController::class, 'members'])->name('public.members.index');
+Route::get('/data-hki', [PublicDirectoryController::class, 'intellectualProperties'])->name('public.intellectual-properties.index');
 
 Route::get('/dashboard', function () {
     return auth()->user()->role === 'admin'
