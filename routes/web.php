@@ -19,9 +19,12 @@ use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\SiteContentController as AdminSiteContentController;
 use App\Http\Controllers\Admin\OrganizationMemberController as AdminOrganizationMemberController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\FaqController as AdminFaqController;
+use App\Http\Controllers\Admin\SupportTicketController as AdminSupportTicketController;
 use App\Http\Controllers\Member\InvoiceController as MemberInvoiceController;
 use App\Http\Controllers\Member\IntellectualPropertyController as MemberIntellectualPropertyController;
 use App\Http\Controllers\Member\DocumentController as MemberDocumentController;
+use App\Http\Controllers\Member\SupportController as MemberSupportController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Member\PaymentController as MemberPaymentController;
 use Illuminate\Support\Facades\Route;
@@ -88,6 +91,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/site-contents/{siteContent}', [AdminSiteContentController::class, 'update'])->name('site-contents.update');
     Route::resource('organization-members', AdminOrganizationMemberController::class)->except(['show']);
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
+    Route::resource('faqs', AdminFaqController::class)->except(['show']);
+    Route::get('/support-tickets', [AdminSupportTicketController::class, 'index'])->name('support-tickets.index');
+    Route::get('/support-tickets/{supportTicket}', [AdminSupportTicketController::class, 'show'])->name('support-tickets.show');
+    Route::put('/support-tickets/{supportTicket}', [AdminSupportTicketController::class, 'update'])->name('support-tickets.update');
 });
 
 Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->group(function () {
@@ -103,6 +110,9 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
         ->parameters(['intellectual-properties' => 'intellectualProperty']);
     Route::get('/documents', [MemberDocumentController::class, 'index'])->name('documents.index');
     Route::get('/documents/{document}/download', [MemberDocumentController::class, 'download'])->name('documents.download');
+    Route::get('/support', [MemberSupportController::class, 'index'])->name('support.index');
+    Route::post('/support', [MemberSupportController::class, 'store'])->name('support.store');
+    Route::get('/support/{supportTicket}', [MemberSupportController::class, 'show'])->name('support.show');
 });
 
 Route::middleware('auth')->group(function () {
