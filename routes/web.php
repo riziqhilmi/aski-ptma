@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\SiteContentController as AdminSiteContentController;
 use App\Http\Controllers\Admin\OrganizationMemberController as AdminOrganizationMemberController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Member\InvoiceController as MemberInvoiceController;
 use App\Http\Controllers\Member\IntellectualPropertyController as MemberIntellectualPropertyController;
 use App\Http\Controllers\Member\DocumentController as MemberDocumentController;
@@ -86,6 +87,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/site-contents/{siteContent}/edit', [AdminSiteContentController::class, 'edit'])->name('site-contents.edit');
     Route::put('/site-contents/{siteContent}', [AdminSiteContentController::class, 'update'])->name('site-contents.update');
     Route::resource('organization-members', AdminOrganizationMemberController::class)->except(['show']);
+    Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
 });
 
 Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->group(function () {
