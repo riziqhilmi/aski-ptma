@@ -61,6 +61,11 @@ class User extends Authenticatable
         return $this->hasMany(IntellectualProperty::class);
     }
 
+    public function uploadedDocuments(): HasMany
+    {
+        return $this->hasMany(Document::class, 'uploaded_by');
+    }
+
     public function invoices(): HasMany { return $this->hasMany(Invoice::class); }
     public function payments(): HasMany { return $this->hasMany(Payment::class); }
     public function memberships(): HasMany { return $this->hasMany(Membership::class); }

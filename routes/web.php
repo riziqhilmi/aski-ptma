@@ -8,8 +8,10 @@ use App\Http\Controllers\Member\MembershipApplicationController as MemberMembers
 use App\Http\Controllers\Admin\MembershipRateController;
 use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
 use App\Http\Controllers\Admin\IntellectualPropertyController as AdminIntellectualPropertyController;
+use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
 use App\Http\Controllers\Member\InvoiceController as MemberInvoiceController;
 use App\Http\Controllers\Member\IntellectualPropertyController as MemberIntellectualPropertyController;
+use App\Http\Controllers\Member\DocumentController as MemberDocumentController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Member\PaymentController as MemberPaymentController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +54,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/intellectual-properties/export', [AdminIntellectualPropertyController::class, 'export'])->name('intellectual-properties.export');
     Route::get('/intellectual-properties', [AdminIntellectualPropertyController::class, 'index'])->name('intellectual-properties.index');
     Route::get('/intellectual-properties/{intellectualProperty}', [AdminIntellectualPropertyController::class, 'show'])->name('intellectual-properties.show');
+    Route::get('/documents/{document}/download', [AdminDocumentController::class, 'download'])->name('documents.download');
+    Route::resource('documents', AdminDocumentController::class);
 });
 
 Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->group(function () {
@@ -65,6 +69,8 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     Route::post('/invoices/{invoice}/payments', [MemberPaymentController::class, 'store'])->name('invoices.payments.store');
     Route::resource('intellectual-properties', MemberIntellectualPropertyController::class)
         ->parameters(['intellectual-properties' => 'intellectualProperty']);
+    Route::get('/documents', [MemberDocumentController::class, 'index'])->name('documents.index');
+    Route::get('/documents/{document}/download', [MemberDocumentController::class, 'download'])->name('documents.download');
 });
 
 Route::middleware('auth')->group(function () {
