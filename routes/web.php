@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicArticleController;
+use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Member\MemberProfileController;
 use App\Http\Controllers\Admin\MembershipApplicationController as AdminMembershipApplicationController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
 use App\Http\Controllers\Admin\IntellectualPropertyController as AdminIntellectualPropertyController;
 use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
+use App\Http\Controllers\Admin\SiteContentController as AdminSiteContentController;
 use App\Http\Controllers\Member\InvoiceController as MemberInvoiceController;
 use App\Http\Controllers\Member\IntellectualPropertyController as MemberIntellectualPropertyController;
 use App\Http\Controllers\Member\DocumentController as MemberDocumentController;
@@ -44,6 +46,8 @@ Route::get('/', function () {
 Route::get('/berita', [PublicArticleController::class, 'index'])->name('public.articles.index');
 Route::get('/berita/{article:slug}', [PublicArticleController::class, 'show'])->name('public.articles.show');
 Route::get('/berita/{article:slug}/gambar', [PublicArticleController::class, 'cover'])->name('public.articles.cover');
+Route::get('/profil', [PublicPageController::class, 'profile'])->name('public.profile');
+Route::get('/kontak', [PublicPageController::class, 'contact'])->name('public.contact');
 
 Route::get('/dashboard', function () {
     return auth()->user()->role === 'admin'
@@ -70,6 +74,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/documents/{document}/download', [AdminDocumentController::class, 'download'])->name('documents.download');
     Route::resource('documents', AdminDocumentController::class);
     Route::resource('articles', AdminArticleController::class);
+    Route::get('/site-contents', [AdminSiteContentController::class, 'index'])->name('site-contents.index');
+    Route::get('/site-contents/{siteContent}/edit', [AdminSiteContentController::class, 'edit'])->name('site-contents.edit');
+    Route::put('/site-contents/{siteContent}', [AdminSiteContentController::class, 'update'])->name('site-contents.update');
 });
 
 Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->group(function () {
