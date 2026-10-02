@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicArticleController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Member\MemberProfileController;
 use App\Http\Controllers\Admin\MembershipApplicationController as AdminMembershipApplicationController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Admin\MembershipRateController;
 use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
 use App\Http\Controllers\Admin\IntellectualPropertyController as AdminIntellectualPropertyController;
 use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
+use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Member\InvoiceController as MemberInvoiceController;
 use App\Http\Controllers\Member\IntellectualPropertyController as MemberIntellectualPropertyController;
 use App\Http\Controllers\Member\DocumentController as MemberDocumentController;
@@ -16,6 +18,7 @@ use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Member\PaymentController as MemberPaymentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Models\Article;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,8 +32,18 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    return Inertia::render('Public/Home');
+    return Inertia::render('Public/Home', [
+        'latestArticles' => Article::with('author')
+            ->where('status', Article::STATUS_PUBLISHED)
+            ->latest('published_at')
+            ->limit(3)
+            ->get(),
+    ]);
 })->name('home');
+
+Route::get('/berita', [PublicArticleController::class, 'index'])->name('public.articles.index');
+Route::get('/berita/{article:slug}', [PublicArticleController::class, 'show'])->name('public.articles.show');
+Route::get('/berita/{article:slug}/gambar', [PublicArticleController::class, 'cover'])->name('public.articles.cover');
 
 Route::get('/dashboard', function () {
     return auth()->user()->role === 'admin'
@@ -56,6 +69,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/intellectual-properties/{intellectualProperty}', [AdminIntellectualPropertyController::class, 'show'])->name('intellectual-properties.show');
     Route::get('/documents/{document}/download', [AdminDocumentController::class, 'download'])->name('documents.download');
     Route::resource('documents', AdminDocumentController::class);
+    Route::resource('articles', AdminArticleController::class);
 });
 
 Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->group(function () {
