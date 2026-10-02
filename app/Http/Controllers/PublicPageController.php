@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SiteContent;
+use App\Models\OrganizationMember;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,6 +14,10 @@ class PublicPageController extends Controller
         return Inertia::render('Public/Profile', [
             'profile' => $this->content(SiteContent::KEY_PROFILE),
             'visionMission' => $this->content(SiteContent::KEY_VISION_MISSION),
+            'organizationMembers' => OrganizationMember::where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 

@@ -7,10 +7,12 @@ use App\Models\Invoice;
 use App\Models\IntellectualProperty;
 use App\Models\Document;
 use App\Models\Article;
+use App\Models\OrganizationMember;
 use App\Policies\InvoicePolicy;
 use App\Policies\IntellectualPropertyPolicy;
 use App\Policies\DocumentPolicy;
 use App\Policies\ArticlePolicy;
+use App\Policies\OrganizationMemberPolicy;
 use App\Policies\MembershipApplicationPolicy;
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -28,6 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         IntellectualProperty::class => IntellectualPropertyPolicy::class,
         Document::class => DocumentPolicy::class,
         Article::class => ArticlePolicy::class,
+        OrganizationMember::class => OrganizationMemberPolicy::class,
     ];
 
     /**

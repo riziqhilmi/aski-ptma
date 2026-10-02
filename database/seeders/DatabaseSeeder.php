@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\SiteContent;
+use App\Models\OrganizationMember;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -59,6 +60,15 @@ class DatabaseSeeder extends Seeder
                     'instagram' => '',
                     'website' => '',
                 ],
+            ],
+        );
+
+        OrganizationMember::updateOrCreate(
+            ['name' => 'Ketua ASKI-PTMA', 'position' => 'Ketua'],
+            [
+                'description' => 'Koordinator penguatan jejaring dan tata kelola ASKI-PTMA.',
+                'sort_order' => 1,
+                'is_active' => true,
             ],
         );
     }
