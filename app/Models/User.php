@@ -55,6 +55,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(MembershipApplication::class);
     }
+
+    public function intellectualProperties(): HasMany
+    {
+        return $this->hasMany(IntellectualProperty::class);
+    }
+
     public function invoices(): HasMany { return $this->hasMany(Invoice::class); }
     public function payments(): HasMany { return $this->hasMany(Payment::class); }
     public function memberships(): HasMany { return $this->hasMany(Membership::class); }

@@ -7,7 +7,9 @@ use App\Http\Controllers\Admin\MembershipApplicationController as AdminMembershi
 use App\Http\Controllers\Member\MembershipApplicationController as MemberMembershipApplicationController;
 use App\Http\Controllers\Admin\MembershipRateController;
 use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
+use App\Http\Controllers\Admin\IntellectualPropertyController as AdminIntellectualPropertyController;
 use App\Http\Controllers\Member\InvoiceController as MemberInvoiceController;
+use App\Http\Controllers\Member\IntellectualPropertyController as MemberIntellectualPropertyController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Member\PaymentController as MemberPaymentController;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +49,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
     Route::put('/payments/{payment}', [AdminPaymentController::class, 'update'])->name('payments.update');
     Route::get('/payments/{payment}/proof', [AdminPaymentController::class, 'proof'])->name('payments.proof');
+    Route::get('/intellectual-properties/export', [AdminIntellectualPropertyController::class, 'export'])->name('intellectual-properties.export');
+    Route::get('/intellectual-properties', [AdminIntellectualPropertyController::class, 'index'])->name('intellectual-properties.index');
+    Route::get('/intellectual-properties/{intellectualProperty}', [AdminIntellectualPropertyController::class, 'show'])->name('intellectual-properties.show');
 });
 
 Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->group(function () {
@@ -58,6 +63,8 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     Route::get('/invoices', [MemberInvoiceController::class, 'index'])->name('invoices.index');
     Route::get('/invoices/{invoice}', [MemberInvoiceController::class, 'show'])->name('invoices.show');
     Route::post('/invoices/{invoice}/payments', [MemberPaymentController::class, 'store'])->name('invoices.payments.store');
+    Route::resource('intellectual-properties', MemberIntellectualPropertyController::class)
+        ->parameters(['intellectual-properties' => 'intellectualProperty']);
 });
 
 Route::middleware('auth')->group(function () {
