@@ -6,7 +6,9 @@ use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\PublicOrganizationMemberPhotoController;
 use App\Http\Controllers\PublicDirectoryController;
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Member\MemberProfileController;
+use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
 use App\Http\Controllers\Admin\MembershipApplicationController as AdminMembershipApplicationController;
 use App\Http\Controllers\Member\MembershipApplicationController as MemberMembershipApplicationController;
 use App\Http\Controllers\Admin\MembershipRateController;
@@ -62,7 +64,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth'])->name('dashboard');
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
+    Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
     Route::get('/accounts/{user}', [AccountController::class, 'show'])->name('accounts.show');
     Route::get('/membership-applications', [AdminMembershipApplicationController::class, 'index'])->name('applications.index');
@@ -87,7 +89,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->group(function () {
-    Route::get('/dashboard', fn () => Inertia::render('Member/Dashboard'))->name('dashboard');
+    Route::get('/dashboard', MemberDashboardController::class)->name('dashboard');
     Route::get('/profile', [MemberProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [MemberProfileController::class, 'update'])->name('profile.update');
     Route::get('/membership-applications', [MemberMembershipApplicationController::class, 'index'])->name('applications.index');
