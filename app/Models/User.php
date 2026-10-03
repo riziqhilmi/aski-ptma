@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'notification_preferences',
     ];
 
     /**
@@ -44,6 +45,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'notification_preferences' => 'array',
     ];
 
     public function memberProfile(): HasOne

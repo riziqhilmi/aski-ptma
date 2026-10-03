@@ -24,9 +24,10 @@ class IntellectualPropertyReport
     public function chart(Request $request): array
     {
         $group = $request->input('group', 'month') === 'year' ? 'year' : 'month';
-        $expression = $group === 'year'
-            ? "DATE_FORMAT(application_date, '%Y')"
-            : "DATE_FORMAT(application_date, '%Y-%m')";
+        $expression = match (DB::connection()->getDriverName()) {
+            'sqlite' => $group === 'year' ? "strftime('%Y', application_date)" : "strftime('%Y-%m', application_date)",
+            default => $group === 'year' ? "DATE_FORMAT(application_date, '%Y')" : "DATE_FORMAT(application_date, '%Y-%m')",
+        };
 
         return $this->query($request)
             ->select(DB::raw($expression.' as label'), DB::raw('COUNT(*) as total'))

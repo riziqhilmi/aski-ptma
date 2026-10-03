@@ -11,6 +11,7 @@ use App\Http\Controllers\Member\MemberProfileController;
 use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
 use App\Http\Controllers\Admin\MembershipApplicationController as AdminMembershipApplicationController;
 use App\Http\Controllers\Member\MembershipApplicationController as MemberMembershipApplicationController;
+use App\Http\Controllers\Member\MembershipController as MemberMembershipController;
 use App\Http\Controllers\Admin\MembershipRateController;
 use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
 use App\Http\Controllers\Admin\IntellectualPropertyController as AdminIntellectualPropertyController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\Member\InvoiceController as MemberInvoiceController;
 use App\Http\Controllers\Member\IntellectualPropertyController as MemberIntellectualPropertyController;
 use App\Http\Controllers\Member\DocumentController as MemberDocumentController;
 use App\Http\Controllers\Member\SupportController as MemberSupportController;
+use App\Http\Controllers\Member\AccountSettingController as MemberAccountSettingController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Member\PaymentController as MemberPaymentController;
 use Illuminate\Support\Facades\Route;
@@ -102,6 +104,7 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     Route::get('/profile', [MemberProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [MemberProfileController::class, 'update'])->name('profile.update');
     Route::get('/membership-applications', [MemberMembershipApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/membership', [MemberMembershipController::class, 'index'])->name('membership.index');
     Route::post('/membership-applications', [MemberMembershipApplicationController::class, 'store'])->name('applications.store');
     Route::get('/invoices', [MemberInvoiceController::class, 'index'])->name('invoices.index');
     Route::get('/invoices/{invoice}', [MemberInvoiceController::class, 'show'])->name('invoices.show');
@@ -113,6 +116,8 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     Route::get('/support', [MemberSupportController::class, 'index'])->name('support.index');
     Route::post('/support', [MemberSupportController::class, 'store'])->name('support.store');
     Route::get('/support/{supportTicket}', [MemberSupportController::class, 'show'])->name('support.show');
+    Route::get('/settings', [MemberAccountSettingController::class, 'edit'])->name('settings.edit');
+    Route::put('/settings/notifications', [MemberAccountSettingController::class, 'update'])->name('settings.notifications.update');
 });
 
 Route::middleware('auth')->group(function () {
