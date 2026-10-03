@@ -77,4 +77,5 @@ class User extends Authenticatable
     public function payments(): HasMany { return $this->hasMany(Payment::class); }
     public function memberships(): HasMany { return $this->hasMany(Membership::class); }
     public function supportTickets(): HasMany { return $this->hasMany(SupportTicket::class); }
+    public function issuedMembershipDocuments(): HasMany { return $this->hasMany(IssuedMembershipDocument::class); }
 }

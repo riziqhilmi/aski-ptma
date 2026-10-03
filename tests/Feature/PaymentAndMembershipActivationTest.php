@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Invoice;
+use App\Models\IssuedMembershipDocument;
 use App\Models\Membership;
 use App\Models\MembershipApplication;
 use App\Models\Payment;
@@ -29,6 +30,7 @@ class PaymentAndMembershipActivationTest extends TestCase
 
     public function test_admin_verification_marks_invoice_paid_and_activates_membership_once(): void
     {
+        Storage::fake('local');
         [$member, $invoice] = $this->invoiceForMember();
         $payment = Payment::create(['invoice_id' => $invoice->id, 'user_id' => $member->id, 'proof_path' => 'payment-proofs/bukti.pdf', 'status' => Payment::SUBMITTED]);
         $admin = User::factory()->create(['role' => 'admin']);
@@ -37,7 +39,10 @@ class PaymentAndMembershipActivationTest extends TestCase
         $membership = Membership::firstOrFail();
         $this->assertSame('active', $membership->status);
         $this->assertSame(today()->addMonthsNoOverflow(6)->subDay()->toDateString(), $membership->ends_at->toDateString());
-        $this->assertNull($membership->member_number ?? null);
+        $this->assertMatchesRegularExpression('/^ASKI\\/'.now()->year.'\\/\\d{4}$/', $membership->member_number);
+        $this->assertDatabaseCount('issued_membership_documents', 2);
+        $this->assertCount(2, IssuedMembershipDocument::all());
+        foreach (IssuedMembershipDocument::all() as $document) { Storage::disk('local')->assertExists($document->file_path); $this->assertStringStartsWith('%PDF', Storage::disk('local')->get($document->file_path)); }
         $this->actingAs($admin)->put(route('admin.payments.update', $payment), ['status' => Payment::VERIFIED])->assertStatus(422);
         $this->assertDatabaseCount('memberships', 1);
     }
