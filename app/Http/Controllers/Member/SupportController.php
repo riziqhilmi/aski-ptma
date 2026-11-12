@@ -15,6 +15,7 @@ class SupportController extends Controller
     public function index(): Response
     {
         return Inertia::render('Member/Support/Index', [
+            'statusLabels' => SupportTicket::statusLabels(),
             'faqs' => Faq::where('is_published', true)->orderBy('sort_order')->get(),
             'tickets' => SupportTicket::where('user_id', auth()->id())->latest()->paginate(8)->withQueryString(),
         ]);
@@ -33,6 +34,7 @@ class SupportController extends Controller
 
         return Inertia::render('Member/Support/Show', [
             'ticket' => $supportTicket,
+            'statusLabels' => SupportTicket::statusLabels(),
         ]);
     }
 }

@@ -49,4 +49,67 @@ class AdminReportTest extends TestCase
             ->get(route('admin.reports.index'))
             ->assertForbidden();
     }
+
+    public function test_verified_invoice_amount_is_counted_once_even_with_multiple_verified_records(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $member = User::factory()->create(['role' => 'member']);
+        $application = MembershipApplication::create([
+            'user_id' => $member->id,
+            'status' => MembershipApplication::COMPLETED,
+            'submitted_at' => now(),
+        ]);
+        $invoice = Invoice::create([
+            'membership_application_id' => $application->id,
+            'user_id' => $member->id,
+            'number' => 'INV-REPORT-DUPLICATE',
+            'amount' => 125000,
+            'duration_months' => 12,
+            'issued_at' => today(),
+            'due_at' => today()->addDays(14),
+            'status' => Invoice::PAID,
+        ]);
+
+        foreach (['proof-one.pdf', 'proof-two.pdf'] as $proof) {
+            Payment::create([
+                'invoice_id' => $invoice->id,
+                'user_id' => $member->id,
+                'proof_path' => 'payment-proofs/'.$proof,
+                'status' => Payment::VERIFIED,
+            ]);
+        }
+
+        $olderApplication = MembershipApplication::create([
+            'user_id' => $member->id,
+            'status' => MembershipApplication::COMPLETED,
+            'submitted_at' => now()->subDay(),
+        ]);
+        $olderInvoice = Invoice::create([
+            'membership_application_id' => $olderApplication->id,
+            'user_id' => $member->id,
+            'number' => 'INV-REPORT-OLDER',
+            'amount' => 99000,
+            'duration_months' => 12,
+            'issued_at' => today()->subDay(),
+            'due_at' => today()->addDays(13),
+            'status' => Invoice::PAID,
+        ]);
+        $olderPayment = Payment::create([
+            'invoice_id' => $olderInvoice->id,
+            'user_id' => $member->id,
+            'proof_path' => 'payment-proofs/proof-older.pdf',
+            'status' => Payment::VERIFIED,
+        ]);
+        $olderPayment->forceFill(['created_at' => now()->subDay(), 'updated_at' => now()->subDay()])->saveQuietly();
+        $this->assertNotSame(today()->toDateString(), $olderPayment->fresh()->created_at->toDateString());
+
+        $this->actingAs($admin)
+            ->get(route('admin.reports.index', ['period_start' => today()->toDateString(), 'period_end' => today()->toDateString()]))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('filters.period_start', today()->toDateString())
+                ->where('summary.payments', 2)
+                ->where('summary.verified_payment_amount', 125000)
+            );
+    }
 }

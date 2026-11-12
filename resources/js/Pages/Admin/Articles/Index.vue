@@ -1,6 +1,9 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import PaginationLinks from '@/Components/PaginationLinks.vue';
+import StatusBadge from '@/Components/StatusBadge.vue';
+import { formatDateTime } from '@/utils/date';
 
 const props = defineProps({
     articles: Object,
@@ -16,52 +19,51 @@ const filter = (event) => router.get(route('admin.articles.index'), { status: ev
 <template>
     <Head title="Berita" />
     <AdminLayout>
-        <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <p class="text-sm font-semibold text-aski-700">BERITA</p>
                 <h1 class="mt-1 text-3xl font-bold text-aski-900">Kelola Artikel Berita</h1>
             </div>
-            <Link :href="route('admin.articles.create')" class="btn-primary">Tambah Artikel</Link>
+            <Link :href="route('admin.articles.create')" class="btn-primary inline-flex min-h-11 items-center justify-center">Tambah Artikel</Link>
         </div>
 
-        <div class="card mt-7 p-5">
-            <select :value="filters.status" class="rounded-lg border-slate-300" @change="filter">
+        <div class="mt-5 flex justify-end">
+            <label class="sr-only" for="article-status-filter">Filter status artikel</label>
+            <select id="article-status-filter" :value="filters.status" class="min-h-10 w-full rounded-lg border-slate-200 bg-white text-sm focus:border-aski-500 focus:ring-aski-500 sm:w-44" @change="filter">
                 <option value="">Semua status</option>
                 <option value="draft">Draft</option>
                 <option value="published">Terbit</option>
             </select>
         </div>
 
-        <div class="card mt-6 overflow-x-auto">
-            <table class="min-w-full text-left text-sm">
+        <section class="card mt-5 overflow-hidden">
+            <div class="border-b border-slate-100 px-5 py-4 sm:px-6"><h2 class="font-semibold text-aski-900">Daftar Berita</h2><p class="mt-1 text-sm text-slate-500">{{ articles.from || 0 }}–{{ articles.to || 0 }} dari {{ articles.total }} artikel</p></div>
+            <div tabindex="0" role="region" aria-label="Tabel artikel, gunakan gulir horizontal untuk melihat kolom lain" class="overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aski-700">
+            <table class="min-w-full divide-y divide-slate-100 text-left text-sm">
                 <thead class="bg-aski-50 text-aski-900">
                     <tr>
-                        <th class="p-4">Judul</th>
-                        <th class="p-4">Penulis</th>
-                        <th class="p-4">Status</th>
-                        <th class="p-4">Publikasi</th>
-                        <th class="p-4">Aksi</th>
+                        <th scope="col" class="px-4 py-3.5 font-semibold sm:px-6">Judul</th>
+                        <th scope="col" class="px-4 py-3.5 font-semibold sm:px-6">Penulis</th>
+                        <th scope="col" class="px-4 py-3.5 font-semibold sm:px-6">Status</th>
+                        <th scope="col" class="px-4 py-3.5 font-semibold sm:px-6">Publikasi</th>
+                        <th scope="col" class="px-4 py-3.5 text-right font-semibold sm:px-6">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="article in articles.data" :key="article.id" class="border-t border-aski-100">
-                        <td class="p-4 font-semibold text-aski-900">{{ article.title }}</td>
-                        <td class="p-4">{{ article.author?.name }}</td>
-                        <td class="p-4">
-                            <span class="rounded-full px-3 py-1 text-xs font-semibold" :class="article.status === 'published' ? 'bg-aski-50 text-aski-700' : 'bg-gold-100 text-gold-600'">{{ article.status_label }}</span>
-                        </td>
-                        <td class="p-4">{{ article.published_at || '-' }}</td>
-                        <td class="p-4"><Link :href="route('admin.articles.show', article.id)" class="font-semibold text-aski-700 hover:text-aski-900">Detail</Link></td>
+                    <tr v-for="article in articles.data" :key="article.id" class="transition-colors hover:bg-slate-50/70">
+                        <td class="px-4 py-3.5 font-semibold text-aski-900 sm:px-6">{{ article.title }}</td>
+                        <td class="whitespace-nowrap px-4 py-3.5 text-slate-700 sm:px-6">{{ article.author?.name }}</td>
+                        <td class="px-4 py-3.5 sm:px-6"><StatusBadge :status="article.status" :label="article.status_label" /></td>
+                        <td class="whitespace-nowrap px-4 py-3.5 text-slate-600 sm:px-6">{{ formatDateTime(article.published_at) }}</td>
+                        <td class="px-4 py-3.5 text-right sm:px-6"><Link :href="route('admin.articles.show', article.id)" class="font-semibold text-aski-700 hover:text-aski-900">Detail</Link></td>
                     </tr>
                     <tr v-if="articles.data.length === 0">
-                        <td colspan="5" class="p-8 text-center text-slate-500">Belum ada artikel.</td>
+                        <td colspan="5" class="px-4 py-10 text-center text-slate-500 sm:px-6">Belum ada artikel.</td>
                     </tr>
                 </tbody>
-            </table>
-        </div>
+            </table></div>
+        </section>
 
-        <div v-if="articles.links?.length > 3" class="mt-5 flex flex-wrap gap-2">
-            <Link v-for="link in articles.links" :key="link.label" :href="link.url || '#'" v-html="link.label" class="rounded-lg border px-3 py-2 text-sm" :class="link.active ? 'border-aski-700 bg-aski-700 text-white' : 'border-aski-100 bg-white text-aski-700'" />
-        </div>
+        <PaginationLinks :links="articles.links" />
     </AdminLayout>
 </template>

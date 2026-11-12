@@ -13,12 +13,13 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('application_number');
             $table->date('application_date');
-            $table->string('creator');
+            $table->string('creator')->nullable();
             $table->string('rights_holder');
             $table->string('ip_type', 100);
             $table->string('recordation_number')->nullable();
             $table->string('title', 500);
-            $table->date('first_published_at');
+            // Only Hak Cipta requires this field; other IP types do not have a publication date.
+            $table->date('first_published_at')->nullable();
             $table->string('protection_period');
             $table->timestamps();
             $table->softDeletes();

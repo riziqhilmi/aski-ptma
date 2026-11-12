@@ -22,11 +22,13 @@ class IntellectualProperty extends Model
         'title',
         'first_published_at',
         'protection_period',
+        'type_details',
     ];
 
     protected $casts = [
         'application_date' => 'date',
         'first_published_at' => 'date',
+        'type_details' => 'array',
     ];
 
     public function user(): BelongsTo

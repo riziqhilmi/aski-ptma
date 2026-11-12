@@ -19,7 +19,7 @@ class IntellectualPropertyPolicy
 
     public function create(User $user): bool
     {
-        return $user->role === 'member';
+        return $user->role === 'member' && $user->hasVerifiedMembershipPayment();
     }
 
     public function update(User $user, IntellectualProperty $intellectualProperty): bool

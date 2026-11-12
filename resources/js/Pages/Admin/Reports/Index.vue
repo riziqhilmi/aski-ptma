@@ -1,6 +1,8 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import { formatDateOnly, formatDateTime } from '@/utils/date';
+import StatusBadge from '@/Components/StatusBadge.vue';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -10,6 +12,7 @@ const props = defineProps({
     payments: Array,
     hkiRecords: Array,
     articles: Array,
+    paymentStatusLabels: Object,
 });
 
 const form = ref({ ...props.filters });
@@ -29,8 +32,10 @@ const submit = () => router.get(route('admin.reports.index'), form.value, { pres
         </div>
 
         <form class="card mt-7 flex flex-wrap gap-3 p-5" @submit.prevent="submit">
-            <input v-model="form.period_start" type="date" class="rounded-lg border-slate-300" />
-            <input v-model="form.period_end" type="date" class="rounded-lg border-slate-300" />
+            <label for="report-period-start" class="sr-only">Tanggal awal periode laporan</label>
+            <input id="report-period-start" v-model="form.period_start" type="date" class="rounded-lg border-slate-300 focus:border-aski-500 focus:ring-aski-500" />
+            <label for="report-period-end" class="sr-only">Tanggal akhir periode laporan</label>
+            <input id="report-period-end" v-model="form.period_end" type="date" class="rounded-lg border-slate-300 focus:border-aski-500 focus:ring-aski-500" />
             <button class="btn-primary" type="submit">Terapkan Periode</button>
         </form>
 
@@ -43,29 +48,29 @@ const submit = () => router.get(route('admin.reports.index'), form.value, { pres
         </div>
 
         <div class="mt-7 grid gap-6 xl:grid-cols-2">
-            <div class="card overflow-x-auto">
+            <div tabindex="0" role="region" aria-label="Tabel laporan, gunakan gulir horizontal untuk melihat kolom lain" class="card overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aski-700">
                 <h2 class="p-5 text-lg font-bold text-aski-900">Laporan Anggota</h2>
                 <table class="min-w-full text-left text-sm">
                     <thead class="bg-aski-50"><tr><th class="p-4">Nama</th><th class="p-4">Tipe</th><th class="p-4">Periode</th></tr></thead>
                     <tbody>
-                        <tr v-for="membership in memberships" :key="membership.id" class="border-t"><td class="p-4 font-semibold">{{ membership.user.member_profile?.institution_name || membership.user.name }}</td><td class="p-4">{{ membership.user.member_profile?.account_type || '-' }}</td><td class="p-4">{{ membership.starts_at }} - {{ membership.ends_at }}</td></tr>
+                        <tr v-for="membership in memberships" :key="membership.id" class="border-t"><td class="p-4 font-semibold">{{ membership.user.member_profile?.institution_name || membership.user.name }}</td><td class="p-4">{{ membership.user.member_profile?.account_type || '-' }}</td><td class="p-4">{{ formatDateOnly(membership.starts_at) }} - {{ formatDateOnly(membership.ends_at) }}</td></tr>
                         <tr v-if="memberships.length === 0"><td colspan="3" class="p-6 text-center text-slate-500">Belum ada data.</td></tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="card overflow-x-auto">
+            <div tabindex="0" role="region" aria-label="Tabel laporan, gunakan gulir horizontal untuk melihat kolom lain" class="card overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aski-700">
                 <h2 class="p-5 text-lg font-bold text-aski-900">Laporan Pembayaran</h2>
                 <table class="min-w-full text-left text-sm">
                     <thead class="bg-aski-50"><tr><th class="p-4">Member</th><th class="p-4">Tagihan</th><th class="p-4">Status</th></tr></thead>
                     <tbody>
-                        <tr v-for="payment in payments" :key="payment.id" class="border-t"><td class="p-4 font-semibold">{{ payment.user.name }}</td><td class="p-4">{{ payment.invoice.number }}</td><td class="p-4">{{ payment.status }}</td></tr>
+                        <tr v-for="payment in payments" :key="payment.id" class="border-t"><td class="p-4 font-semibold">{{ payment.user.name }}</td><td class="p-4">{{ payment.invoice.number }}</td><td class="p-4"><StatusBadge :label="paymentStatusLabels[payment.status] || 'Status tidak dikenal'" :status="payment.status" /></td></tr>
                         <tr v-if="payments.length === 0"><td colspan="3" class="p-6 text-center text-slate-500">Belum ada data.</td></tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="card overflow-x-auto">
+            <div tabindex="0" role="region" aria-label="Tabel laporan, gunakan gulir horizontal untuk melihat kolom lain" class="card overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aski-700">
                 <h2 class="p-5 text-lg font-bold text-aski-900">Laporan HKI</h2>
                 <table class="min-w-full text-left text-sm">
                     <thead class="bg-aski-50"><tr><th class="p-4">Judul</th><th class="p-4">Jenis</th><th class="p-4">Pemegang Hak</th></tr></thead>
@@ -76,12 +81,12 @@ const submit = () => router.get(route('admin.reports.index'), form.value, { pres
                 </table>
             </div>
 
-            <div class="card overflow-x-auto">
+            <div tabindex="0" role="region" aria-label="Tabel laporan, gunakan gulir horizontal untuk melihat kolom lain" class="card overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aski-700">
                 <h2 class="p-5 text-lg font-bold text-aski-900">Laporan Berita Terbit</h2>
                 <table class="min-w-full text-left text-sm">
                     <thead class="bg-aski-50"><tr><th class="p-4">Judul</th><th class="p-4">Penulis</th><th class="p-4">Tanggal</th></tr></thead>
                     <tbody>
-                        <tr v-for="article in articles" :key="article.id" class="border-t"><td class="p-4 font-semibold">{{ article.title }}</td><td class="p-4">{{ article.author.name }}</td><td class="p-4">{{ article.published_at }}</td></tr>
+                        <tr v-for="article in articles" :key="article.id" class="border-t"><td class="p-4 font-semibold">{{ article.title }}</td><td class="p-4">{{ article.author.name }}</td><td class="p-4">{{ formatDateTime(article.published_at) }}</td></tr>
                         <tr v-if="articles.length === 0"><td colspan="3" class="p-6 text-center text-slate-500">Belum ada data.</td></tr>
                     </tbody>
                 </table>

@@ -13,16 +13,27 @@ class IntellectualPropertyRequest extends FormRequest
 
     public function rules(): array
     {
+        $record = $this->route('intellectualProperty');
+        $legacyMissingWorkType = $record instanceof \App\Models\IntellectualProperty
+            && blank(data_get($record->type_details, 'work_type'));
+        $workTypes = [
+            'Hak Cipta', 'Paten', 'Paten Sederhana', 'Merek', 'Desain Industri',
+            'Indikasi Geografis', 'Rahasia Dagang', 'Desain Tata Letak Sirkuit Terpadu (DTLST)',
+            'Perlindungan Varietas Tanaman (PVT)',
+        ];
+
         return [
             'application_number' => ['required', 'string', 'max:255'],
             'application_date' => ['required', 'date'],
             'creator' => ['required', 'string', 'max:255'],
             'rights_holder' => ['required', 'string', 'max:255'],
-            'ip_type' => ['required', 'string', 'max:100'],
+            'ip_type' => ['required', 'in:Hak Cipta'],
             'recordation_number' => ['nullable', 'string', 'max:255'],
             'title' => ['required', 'string', 'max:500'],
             'first_published_at' => ['required', 'date'],
             'protection_period' => ['required', 'string', 'max:255'],
+            'type_details' => ['nullable', 'array'],
+            'type_details.work_type' => [$legacyMissingWorkType ? 'nullable' : 'required', 'in:'.implode(',', $workTypes)],
         ];
     }
 
@@ -33,11 +44,21 @@ class IntellectualPropertyRequest extends FormRequest
             'application_date' => 'tanggal permohonan',
             'creator' => 'pencipta',
             'rights_holder' => 'pemegang hak',
-            'ip_type' => 'jenis HKI',
             'recordation_number' => 'nomor pencatatan',
             'title' => 'judul ciptaan',
             'first_published_at' => 'tanggal pertama kali diumumkan',
             'protection_period' => 'jangka waktu pelindungan',
+            'type_details.work_type' => 'jenis ciptaan',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'required' => ':attribute wajib diisi.',
+            'date' => ':attribute harus berupa tanggal yang valid.',
+            'string' => ':attribute harus berupa teks.',
+            'max' => ':attribute tidak boleh lebih dari :max karakter.',
         ];
     }
 }

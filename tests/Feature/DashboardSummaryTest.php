@@ -99,6 +99,8 @@ class DashboardSummaryTest extends TestCase
                 ->where('summary.membership_status', 'Aktif')
                 ->where('summary.hki_count', 1)
                 ->where('summary.unpaid_invoices', 1)
+                ->where('nextAction.route', 'member.invoices.show')
+                ->where('nextAction.id', $invoice->id)
                 ->has('latestInvoices', 1)
                 ->has('latestHki', 1)
             );

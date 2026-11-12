@@ -27,48 +27,58 @@ const submit = () => {
 <template>
     <Head :title="isEditing ? 'Ubah Pengurus' : 'Tambah Pengurus'" />
     <AdminLayout>
-        <p class="text-sm font-semibold text-aski-700">STRUKTUR ORGANISASI</p>
+        <div class="mx-auto max-w-4xl">
+        <Link :href="route('admin.organization-members.index')" class="text-sm font-semibold text-aski-700 hover:text-aski-900">← Kembali ke Struktur Organisasi</Link>
+        <p class="mt-5 text-sm font-semibold uppercase tracking-wide text-aski-700">Publikasi · Struktur Organisasi</p>
         <h1 class="mt-1 text-3xl font-bold text-aski-900">{{ isEditing ? 'Ubah Pengurus' : 'Tambah Pengurus' }}</h1>
+        <p class="mt-2 text-sm text-slate-600">Atur identitas, jabatan, urutan, dan status pengurus yang ditampilkan di website.</p>
 
-        <form class="card mt-7 grid gap-5 p-6 md:grid-cols-2" @submit.prevent="submit">
+        <form class="card mt-6 grid gap-5 p-5 sm:p-7 md:grid-cols-2" @submit.prevent="submit">
             <div>
-                <label class="text-sm font-semibold text-aski-900">Nama</label>
-                <input v-model="form.name" class="mt-1 w-full rounded-lg border-slate-300" />
+                <label class="block text-sm font-semibold text-aski-900">Nama <span aria-hidden="true">(wajib)</span>
+                    <input v-model="form.name" required aria-required="true" :aria-invalid="Boolean(form.errors.name)" class="mt-2 min-h-11 w-full rounded-xl border-slate-300 focus:border-aski-500 focus:ring-aski-500" />
+                </label>
                 <InputError :message="form.errors.name" class="mt-2" />
             </div>
             <div>
-                <label class="text-sm font-semibold text-aski-900">Jabatan</label>
-                <input v-model="form.position" class="mt-1 w-full rounded-lg border-slate-300" />
+                <label class="block text-sm font-semibold text-aski-900">Jabatan <span aria-hidden="true">(wajib)</span>
+                    <input v-model="form.position" required aria-required="true" :aria-invalid="Boolean(form.errors.position)" class="mt-2 min-h-11 w-full rounded-xl border-slate-300 focus:border-aski-500 focus:ring-aski-500" />
+                </label>
                 <InputError :message="form.errors.position" class="mt-2" />
             </div>
             <div>
-                <label class="text-sm font-semibold text-aski-900">Urutan Tampil</label>
-                <input v-model="form.sort_order" type="number" min="0" class="mt-1 w-full rounded-lg border-slate-300" />
+                <label class="block text-sm font-semibold text-aski-900">Urutan Tampil <span aria-hidden="true">(wajib)</span>
+                    <input v-model="form.sort_order" type="number" min="0" required aria-required="true" :aria-invalid="Boolean(form.errors.sort_order)" class="mt-2 min-h-11 w-full rounded-xl border-slate-300 focus:border-aski-500 focus:ring-aski-500" />
+                </label>
                 <InputError :message="form.errors.sort_order" class="mt-2" />
             </div>
             <div>
-                <label class="text-sm font-semibold text-aski-900">Status</label>
-                <select v-model="form.is_active" class="mt-1 w-full rounded-lg border-slate-300">
+                <label class="block text-sm font-semibold text-aski-900">Status <span aria-hidden="true">(wajib)</span>
+                <select v-model="form.is_active" required aria-required="true" :aria-invalid="Boolean(form.errors.is_active)" class="mt-2 min-h-11 w-full rounded-xl border-slate-300 focus:border-aski-500 focus:ring-aski-500">
                     <option :value="true">Aktif</option>
                     <option :value="false">Nonaktif</option>
                 </select>
+                </label>
                 <InputError :message="form.errors.is_active" class="mt-2" />
             </div>
             <div class="md:col-span-2">
-                <label class="text-sm font-semibold text-aski-900">Foto</label>
-                <input type="file" accept="image/jpeg,image/png,image/webp" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2" @input="form.photo = $event.target.files[0]" />
+                <label class="block text-sm font-semibold text-aski-900">Foto (opsional)
+                <input type="file" accept="image/jpeg,image/png,image/webp" :aria-invalid="Boolean(form.errors.photo)" class="mt-2 min-h-11 w-full rounded-xl border border-slate-300 bg-white p-2 text-sm focus:border-aski-500 focus:ring-aski-500" @input="form.photo = $event.target.files[0]" />
+                </label>
                 <p v-if="isEditing" class="mt-2 text-xs text-slate-500">Kosongkan jika tidak ingin mengganti foto.</p>
                 <InputError :message="form.errors.photo" class="mt-2" />
             </div>
             <div class="md:col-span-2">
-                <label class="text-sm font-semibold text-aski-900">Deskripsi</label>
-                <textarea v-model="form.description" rows="4" class="mt-1 w-full rounded-lg border-slate-300"></textarea>
+                <label class="block text-sm font-semibold text-aski-900">Deskripsi (opsional)
+                <textarea v-model="form.description" :aria-invalid="Boolean(form.errors.description)" rows="4" class="mt-2 w-full rounded-xl border-slate-300 focus:border-aski-500 focus:ring-aski-500"></textarea>
+                </label>
                 <InputError :message="form.errors.description" class="mt-2" />
             </div>
-            <div class="flex gap-3 md:col-span-2">
-                <button class="btn-primary" type="submit" :disabled="form.processing">Simpan</button>
-                <Link :href="route('admin.organization-members.index')" class="rounded-lg border border-aski-200 px-4 py-2 font-semibold text-aski-700">Batal</Link>
+            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end md:col-span-2">
+                <Link :href="route('admin.organization-members.index')" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-5 font-semibold text-slate-700">Batal</Link>
+                <button class="btn-primary inline-flex min-h-11 items-center justify-center" type="submit" :disabled="form.processing">{{ form.processing ? 'Menyimpan…' : 'Simpan Pengurus' }}</button>
             </div>
         </form>
+        </div>
     </AdminLayout>
 </template>

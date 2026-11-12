@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Models\Membership;
 use App\Models\MembershipApplication;
 use App\Models\Payment;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,6 +16,15 @@ class DashboardController extends Controller
 {
     public function __invoke(): Response
     {
+        $applicationCounts = MembershipApplication::query()
+            ->selectRaw('status, COUNT(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+        $paymentCounts = Payment::query()
+            ->selectRaw('status, COUNT(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
         return Inertia::render('Admin/Dashboard', [
             'summary' => [
                 'active_members' => Membership::where('status', 'active')
@@ -36,6 +46,23 @@ class DashboardController extends Controller
                 ->latest()
                 ->limit(5)
                 ->get(),
+            'statusBreakdown' => [
+                'applications' => $this->statusBreakdown(MembershipApplication::statusLabels(), $applicationCounts),
+                'payments' => $this->statusBreakdown(Payment::statusLabels(), $paymentCounts),
+            ],
+            'statusLabels' => [
+                'applications' => MembershipApplication::statusLabels(),
+                'payments' => Payment::statusLabels(),
+            ],
         ]);
+    }
+
+    private function statusBreakdown(array $labels, Collection $counts): array
+    {
+        return collect($labels)->map(fn (string $label, string $status): array => [
+            'status' => $status,
+            'label' => $label,
+            'count' => (int) ($counts[$status] ?? 0),
+        ])->values()->all();
     }
 }

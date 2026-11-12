@@ -75,6 +75,15 @@ class User extends Authenticatable
 
     public function invoices(): HasMany { return $this->hasMany(Invoice::class); }
     public function payments(): HasMany { return $this->hasMany(Payment::class); }
+    public function hasVerifiedMembershipPayment(): bool
+    {
+        return $this->invoices()
+            ->where('status', Invoice::PAID)
+            ->whereHas('payments', fn ($query) => $query
+                ->where('user_id', $this->getKey())
+                ->where('status', Payment::VERIFIED))
+            ->exists();
+    }
     public function memberships(): HasMany { return $this->hasMany(Membership::class); }
     public function supportTickets(): HasMany { return $this->hasMany(SupportTicket::class); }
     public function issuedMembershipDocuments(): HasMany { return $this->hasMany(IssuedMembershipDocument::class); }

@@ -70,4 +70,20 @@ class AccountManagementTest extends TestCase
 
         $this->actingAs($member)->get(route('admin.accounts.index'))->assertForbidden();
     }
+
+    public function test_admin_account_filters_include_account_type_completion_and_search(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $individual = User::factory()->create(['role' => 'member', 'name' => 'Akun Individu']);
+        MemberProfile::create(['user_id' => $individual->id, 'account_type' => 'individual', 'phone' => '08123456789', 'address' => 'Bandung']);
+        $institution = User::factory()->create(['role' => 'member', 'name' => 'Akun Institusi']);
+        MemberProfile::create(['user_id' => $institution->id, 'account_type' => 'institution', 'phone' => '08123456780', 'address' => 'Solo', 'institution_name' => 'Kampus Contoh', 'responsible_name' => 'Penanggung Jawab']);
+
+        $this->actingAs($admin)->get(route('admin.accounts.index', ['type' => 'institution', 'status' => 'lengkap']))
+            ->assertOk()->assertSee('Akun Institusi')->assertDontSee('Akun Individu');
+        $this->actingAs($admin)->get(route('admin.accounts.index', ['q' => 'Akun Institusi']))
+            ->assertOk()->assertSee('Akun Institusi')->assertDontSee('Akun Individu');
+        $this->actingAs($admin)->get(route('admin.accounts.index', ['status' => 'belum_lengkap']))
+            ->assertOk()->assertSee('Member');
+    }
 }

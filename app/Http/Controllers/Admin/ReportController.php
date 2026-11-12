@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\IntellectualProperty;
+use App\Models\Invoice;
 use App\Models\Membership;
 use App\Models\Payment;
 use Illuminate\Database\Eloquent\Builder;
@@ -42,10 +43,14 @@ class ReportController extends Controller
                 'period_start' => $request->input('period_start', ''),
                 'period_end' => $request->input('period_end', ''),
             ],
+            'paymentStatusLabels' => Payment::statusLabels(),
             'summary' => [
                 'members' => (clone $memberships)->distinct('user_id')->count('user_id'),
                 'payments' => (clone $payments)->count(),
-                'verified_payment_amount' => (float) (clone $payments)->where('payments.status', Payment::VERIFIED)->join('invoices', 'invoices.id', '=', 'payments.invoice_id')->sum('invoices.amount'),
+                'verified_payment_amount' => (float) Invoice::whereIn(
+                    'id',
+                    (clone $payments)->where('payments.status', Payment::VERIFIED)->select('payments.invoice_id')->distinct(),
+                )->sum('amount'),
                 'hki' => (clone $hki)->count(),
                 'published_articles' => (clone $articles)->count(),
             ],

@@ -11,4 +11,5 @@ class Membership extends Model
     protected $casts = ['starts_at' => 'date', 'ends_at' => 'date'];
     public function user(): BelongsTo { return $this->belongsTo(User::class); }
     public function invoice(): BelongsTo { return $this->belongsTo(Invoice::class); }
+    public function application(): BelongsTo { return $this->belongsTo(MembershipApplication::class, 'membership_application_id'); }
 }

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MembershipApplicationHistory extends Model
 {
-    protected $fillable = ['membership_application_id', 'status', 'note', 'changed_by'];
+    protected $fillable = ['membership_application_id', 'status', 'note', 'changed_by', 'revision_data'];
+
+    protected $casts = ['revision_data' => 'array'];
 
     public function application(): BelongsTo { return $this->belongsTo(MembershipApplication::class, 'membership_application_id'); }
     public function changedBy(): BelongsTo { return $this->belongsTo(User::class, 'changed_by'); }

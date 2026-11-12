@@ -33,7 +33,7 @@ const submit = () => {
             <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-aski-800 to-transparent"></div>
             <div class="relative">
                 <Link :href="route('home')" class="inline-flex items-center gap-3">
-                    <span class="grid h-12 w-12 place-items-center rounded-lg bg-gold-400 text-xl font-black text-aski-900">A</span>
+                    <img src="/images/logo-aski.png" alt="Logo ASKI-PTMA" class="h-14 w-14 shrink-0 rounded-full bg-white object-contain p-0.5" />
                     <span>
                         <span class="block text-xl font-bold">ASKI-PTMA</span>
                         <span class="text-sm font-medium text-aski-100">Sistem Informasi Keanggotaan dan HKI</span>
@@ -67,7 +67,7 @@ const submit = () => {
             <div class="w-full max-w-md">
                 <div class="mb-8 lg:hidden">
                     <Link :href="route('home')" class="inline-flex items-center gap-3">
-                        <span class="grid h-11 w-11 place-items-center rounded-lg bg-aski-900 text-lg font-black text-gold-400">A</span>
+                        <img src="/images/logo-aski.png" alt="Logo ASKI-PTMA" class="h-12 w-12 shrink-0 rounded-full bg-white object-contain p-0.5" />
                         <span>
                             <span class="block text-lg font-bold text-aski-900">ASKI-PTMA</span>
                             <span class="text-xs font-semibold uppercase tracking-widest text-gold-600">Portal Member</span>
@@ -82,6 +82,10 @@ const submit = () => {
 
                     <div v-if="status" class="mt-5 rounded-lg border border-aski-100 bg-aski-50 px-4 py-3 text-sm font-medium text-aski-700">
                         {{ status }}
+                    </div>
+
+                    <div v-if="$page.props.flash?.error" role="alert" class="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+                        {{ $page.props.flash.error }}
                     </div>
 
                     <form class="mt-7 space-y-5" @submit.prevent="submit">

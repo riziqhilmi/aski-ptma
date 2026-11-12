@@ -65,6 +65,20 @@ class DocumentManagementTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_member_membership_document_list_uses_pagination(): void
+    {
+        $member = User::factory()->create(['role' => 'member']);
+
+        $this->actingAs($member)
+            ->get(route('member.membership-documents.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Member/MembershipDocuments/Index')
+                ->has('documents.data', 0)
+                ->has('documents.links')
+            );
+    }
+
     public function test_document_upload_requires_pdf_and_member_cannot_access_admin_documents(): void
     {
         Storage::fake('local');
@@ -83,6 +97,25 @@ class DocumentManagementTest extends TestCase
         $this->actingAs($member)
             ->get(route('admin.documents.index'))
             ->assertForbidden();
+    }
+
+    public function test_document_download_rejects_path_traversal_in_stored_path(): void
+    {
+        Storage::fake('local');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $document = Document::create([
+            'uploaded_by' => $admin->id,
+            'title' => 'Path Tidak Aman',
+            'category' => Document::CATEGORY_GUIDE,
+            'status' => Document::STATUS_PUBLISHED,
+            'file_path' => '../private/secret.pdf',
+            'original_filename' => 'secret.pdf',
+            'mime_type' => 'application/pdf',
+            'file_size' => 10,
+            'published_at' => now(),
+        ]);
+
+        $this->actingAs($admin)->get(route('admin.documents.download', $document))->assertNotFound();
     }
 
     private function document(User $admin, string $status, string $title): Document

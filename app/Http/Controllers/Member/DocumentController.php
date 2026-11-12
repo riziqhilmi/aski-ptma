@@ -41,8 +41,16 @@ class DocumentController extends Controller
     public function download(Document $document): StreamedResponse
     {
         $this->authorize('view', $document);
+        abort_unless($this->isDocumentPath($document->file_path), 404);
         abort_unless(Storage::disk('local')->exists($document->file_path), 404);
 
-        return Storage::disk('local')->download($document->file_path, $document->original_filename);
+        return Storage::disk('local')->download($document->file_path, basename(str_replace('\\', '/', $document->original_filename)));
+    }
+
+    private function isDocumentPath(string $path): bool
+    {
+        return str_starts_with($path, 'documents/')
+            && ! str_contains($path, '..')
+            && ! str_contains($path, "\0");
     }
 }

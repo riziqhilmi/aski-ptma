@@ -15,4 +15,9 @@ class Payment extends Model
     public function invoice(): BelongsTo { return $this->belongsTo(Invoice::class); }
     public function user(): BelongsTo { return $this->belongsTo(User::class); }
     public function reviewer(): BelongsTo { return $this->belongsTo(User::class, 'reviewed_by'); }
+
+    public static function statusLabels(): array
+    {
+        return [self::SUBMITTED => 'Menunggu pemeriksaan', self::VERIFIED => 'Terverifikasi', self::REJECTED => 'Ditolak'];
+    }
 }

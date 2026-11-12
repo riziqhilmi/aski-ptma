@@ -13,7 +13,9 @@ class MembershipApplicationDecisionRequest extends FormRequest
     {
         return [
             'status' => ['required', Rule::in([MembershipApplication::REVISION, MembershipApplication::APPROVED_WAITING_PAYMENT, MembershipApplication::REJECTED])],
-            'admin_note' => ['nullable', 'string', 'max:2000', 'required_if:status,'.MembershipApplication::REVISION.', '.MembershipApplication::REJECTED],
+            'admin_note' => ['nullable', 'string', 'max:2000', 'required_if:status,'.MembershipApplication::REVISION, 'required_if:status,'.MembershipApplication::REJECTED],
+            'requested_fields' => ['exclude_unless:status,'.MembershipApplication::REVISION, 'required', 'array', 'min:1'],
+            'requested_fields.*' => ['required', 'string', Rule::in(['name', 'email', 'account_type', 'phone', 'address', 'institution_name', 'responsible_name', 'responsible_position'])],
         ];
     }
 }

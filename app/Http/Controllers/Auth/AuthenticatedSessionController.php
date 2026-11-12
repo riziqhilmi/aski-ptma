@@ -33,7 +33,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        // Do not honor a stale intended URL here: it may point to a route
+        // reserved for the other role and send a valid login into a 403.
+        return redirect()->route('dashboard');
     }
 
     /**

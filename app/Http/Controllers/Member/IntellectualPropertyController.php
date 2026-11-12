@@ -23,11 +23,17 @@ class IntellectualPropertyController extends Controller
 
         return Inertia::render('Member/IntellectualProperties/Index', [
             'records' => $records,
+            'canCreate' => $request->user()->hasVerifiedMembershipPayment(),
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response|RedirectResponse
     {
+        if (! $request->user()->hasVerifiedMembershipPayment()) {
+            return redirect()->route('member.intellectual-properties.index')
+                ->with('error', 'Input data HKI tersedia setelah pembayaran keanggotaan Anda terverifikasi.');
+        }
+
         $this->authorize('create', IntellectualProperty::class);
 
         return Inertia::render('Member/IntellectualProperties/Form', [
@@ -37,6 +43,11 @@ class IntellectualPropertyController extends Controller
 
     public function store(IntellectualPropertyRequest $request): RedirectResponse
     {
+        if (! $request->user()->hasVerifiedMembershipPayment()) {
+            return redirect()->route('member.intellectual-properties.index')
+                ->with('error', 'Input data HKI tersedia setelah pembayaran keanggotaan Anda terverifikasi.');
+        }
+
         $this->authorize('create', IntellectualProperty::class);
 
         $request->user()->intellectualProperties()->create($request->validated());

@@ -73,6 +73,14 @@ class SupportCenterTest extends TestCase
         ]);
     }
 
+    public function test_empty_support_ticket_uses_indonesian_validation_messages(): void
+    {
+        $member = User::factory()->create(['role' => 'member']);
+        $this->actingAs($member)->post(route('member.support.store'), [])
+            ->assertSessionHasErrors(['subject', 'message'])
+            ->assertSessionHas('errors', fn ($errors) => str_contains($errors->first('subject'), 'wajib diisi'));
+    }
+
     public function test_admin_can_answer_ticket_and_member_can_read_own_ticket_only(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -125,5 +133,42 @@ class SupportCenterTest extends TestCase
                 'sort_order' => 1,
             ])
             ->assertForbidden();
+    }
+
+    public function test_closed_ticket_must_be_reopened_before_admin_can_answer_again(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $member = User::factory()->create(['role' => 'member']);
+        $ticket = SupportTicket::create([
+            'user_id' => $member->id,
+            'subject' => 'Pertanyaan lanjutan',
+            'message' => 'Mohon bantuan.',
+            'status' => SupportTicket::STATUS_CLOSED,
+            'admin_response' => 'Sudah ditindaklanjuti.',
+            'responded_by' => $admin->id,
+            'responded_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('admin.support-tickets.update', $ticket), [
+                'status' => SupportTicket::STATUS_ANSWERED,
+                'admin_response' => 'Jawaban baru.',
+            ])
+            ->assertSessionHasErrors('status');
+        $this->assertSame(SupportTicket::STATUS_CLOSED, $ticket->fresh()->status);
+        $this->assertSame('Sudah ditindaklanjuti.', $ticket->fresh()->admin_response);
+
+        $this->actingAs($admin)
+            ->put(route('admin.support-tickets.update', $ticket), ['status' => SupportTicket::STATUS_OPEN])
+            ->assertRedirect(route('admin.support-tickets.show', $ticket));
+        $this->assertSame(SupportTicket::STATUS_OPEN, $ticket->fresh()->status);
+
+        $this->actingAs($admin)
+            ->put(route('admin.support-tickets.update', $ticket), [
+                'status' => SupportTicket::STATUS_ANSWERED,
+                'admin_response' => 'Jawaban baru.',
+            ])
+            ->assertRedirect(route('admin.support-tickets.show', $ticket));
+        $this->assertSame('Jawaban baru.', $ticket->fresh()->admin_response);
     }
 }

@@ -15,6 +15,15 @@ class SupportTicket extends Model
     public const STATUS_ANSWERED = 'answered';
     public const STATUS_CLOSED = 'closed';
 
+    public static function statusLabels(): array
+    {
+        return [
+            self::STATUS_OPEN => 'Terbuka',
+            self::STATUS_ANSWERED => 'Terjawab',
+            self::STATUS_CLOSED => 'Ditutup',
+        ];
+    }
+
     protected $fillable = [
         'user_id',
         'subject',

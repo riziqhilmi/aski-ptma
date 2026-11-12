@@ -18,4 +18,18 @@ class SupportTicketRequest extends FormRequest
             'message' => ['required', 'string', 'max:5000'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['subject' => 'subjek', 'message' => 'pesan'];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'required' => ':attribute wajib diisi.',
+            'string' => ':attribute harus berupa teks.',
+            'max' => ':attribute tidak boleh lebih dari :max karakter.',
+        ];
+    }
 }

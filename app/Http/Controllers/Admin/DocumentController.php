@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Str;
 
 class DocumentController extends Controller
 {
@@ -61,7 +62,7 @@ class DocumentController extends Controller
             'status' => $data['status'],
             'description' => $data['description'] ?? null,
             'file_path' => $path,
-            'original_filename' => $file->getClientOriginalName(),
+            'original_filename' => $this->safeOriginalFilename($file->getClientOriginalName()),
             'mime_type' => $file->getMimeType() ?: 'application/pdf',
             'file_size' => $file->getSize(),
             'published_at' => $data['status'] === Document::STATUS_PUBLISHED ? now() : null,
@@ -109,7 +110,7 @@ class DocumentController extends Controller
             Storage::disk('local')->delete($document->file_path);
             $payload = array_merge($payload, [
                 'file_path' => $file->store('documents', 'local'),
-                'original_filename' => $file->getClientOriginalName(),
+                'original_filename' => $this->safeOriginalFilename($file->getClientOriginalName()),
                 'mime_type' => $file->getMimeType() ?: 'application/pdf',
                 'file_size' => $file->getSize(),
             ]);
@@ -132,9 +133,10 @@ class DocumentController extends Controller
     public function download(Document $document): StreamedResponse
     {
         $this->authorize('view', $document);
+        abort_unless($this->isDocumentPath($document->file_path), 404);
         abort_unless(Storage::disk('local')->exists($document->file_path), 404);
 
-        return Storage::disk('local')->download($document->file_path, $document->original_filename);
+        return Storage::disk('local')->download($document->file_path, $this->safeOriginalFilename($document->original_filename));
     }
 
     private function categoryOptions(): array
@@ -146,5 +148,20 @@ class DocumentController extends Controller
             ['value' => Document::CATEGORY_CARD_TEMPLATE, 'label' => 'Template Kartu Anggota'],
             ['value' => Document::CATEGORY_OTHER_TEMPLATE, 'label' => 'Template Dokumen'],
         ];
+    }
+
+    private function isDocumentPath(string $path): bool
+    {
+        return str_starts_with($path, 'documents/')
+            && ! str_contains($path, '..')
+            && ! str_contains($path, "\0");
+    }
+
+    private function safeOriginalFilename(?string $filename): string
+    {
+        $filename = basename(str_replace('\\', '/', $filename ?: 'dokumen.pdf'));
+        $filename = preg_replace('/[\x00-\x1F\x7F]+/', '', $filename) ?: 'dokumen.pdf';
+
+        return Str::limit($filename, 180, '');
     }
 }

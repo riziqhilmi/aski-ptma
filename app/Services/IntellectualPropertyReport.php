@@ -6,6 +6,7 @@ use App\Models\IntellectualProperty;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\CarbonImmutable;
 
 class IntellectualPropertyReport
 {
@@ -29,7 +30,7 @@ class IntellectualPropertyReport
             default => $group === 'year' ? "DATE_FORMAT(application_date, '%Y')" : "DATE_FORMAT(application_date, '%Y-%m')",
         };
 
-        return $this->query($request)
+        $rows = $this->query($request)
             ->select(DB::raw($expression.' as label'), DB::raw('COUNT(*) as total'))
             ->groupBy('label')
             ->orderBy('label')
@@ -37,6 +38,35 @@ class IntellectualPropertyReport
             ->map(fn ($item) => ['label' => $item->label, 'total' => (int) $item->total])
             ->values()
             ->all();
+
+        if ($rows === []) {
+            return [];
+        }
+
+        $counts = collect($rows)->pluck('total', 'label');
+        $start = $request->filled('period_start')
+            ? CarbonImmutable::parse($request->input('period_start'))
+            : CarbonImmutable::createFromFormat($group === 'year' ? 'Y' : 'Y-m', $rows[0]['label'])->startOf($group);
+        $end = $request->filled('period_end')
+            ? CarbonImmutable::parse($request->input('period_end'))
+            : CarbonImmutable::createFromFormat($group === 'year' ? 'Y' : 'Y-m', $rows[array_key_last($rows)]['label'])->startOf($group);
+
+        if ($start->greaterThan($end)) {
+            return $rows;
+        }
+
+        $period = $start->startOf($group);
+        $last = $end->startOf($group);
+        $filled = [];
+        $iterations = 0;
+        while ($period->lessThanOrEqualTo($last) && $iterations < 120) {
+            $label = $group === 'year' ? $period->format('Y') : $period->format('Y-m');
+            $filled[] = ['label' => $label, 'total' => (int) $counts->get($label, 0)];
+            $period = $period->add(1, $group);
+            $iterations++;
+        }
+
+        return $filled;
     }
 
     public function summary(Request $request): array
