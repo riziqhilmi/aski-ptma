@@ -65,3 +65,9 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 # aski-ptma
+
+## Deploy demo ke Render dengan Docker
+
+Repository ini menyediakan `Dockerfile` dan `render.yaml`. Buat Blueprint baru di Render yang menunjuk ke repository ini; Blueprint akan membuat web service Docker dan database PostgreSQL, lalu menjalankan migration saat container mulai. Seeder tidak dijalankan otomatis.
+
+Blueprint memakai paket Free untuk uji coba. Web service Free dapat tidur setelah 15 menit tanpa trafik, PostgreSQL Free akan kedaluwarsa setelah 30 hari, dan file yang diunggah tidak bertahan pada filesystem web service. Untuk data unggahan yang persisten, gunakan paket berbayar dengan persistent disk atau object storage.

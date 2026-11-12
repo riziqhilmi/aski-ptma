@@ -27,6 +27,7 @@ class IntellectualPropertyReport
         $group = $request->input('group', 'month') === 'year' ? 'year' : 'month';
         $expression = match (DB::connection()->getDriverName()) {
             'sqlite' => $group === 'year' ? "strftime('%Y', application_date)" : "strftime('%Y-%m', application_date)",
+            'pgsql' => $group === 'year' ? "TO_CHAR(application_date, 'YYYY')" : "TO_CHAR(application_date, 'YYYY-MM')",
             default => $group === 'year' ? "DATE_FORMAT(application_date, '%Y')" : "DATE_FORMAT(application_date, '%Y-%m')",
         };
 
