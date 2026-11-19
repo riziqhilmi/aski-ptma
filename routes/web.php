@@ -67,6 +67,10 @@ Route::get('/struktur-organisasi/{organizationMember}/foto', PublicOrganizationM
 Route::get('/anggota', [PublicDirectoryController::class, 'members'])->name('public.members.index');
 Route::get('/data-hki', [PublicDirectoryController::class, 'intellectualProperties'])->name('public.intellectual-properties.index');
 
+Route::get('/anggota', [PublicDirectoryController::class, 'members'])->name('public.members.index');
+Route::get('/data-hki', [PublicDirectoryController::class, 'intellectualProperties'])->name('public.intellectual-properties.index');
+Route::get('/data-hki/export', [PublicDirectoryController::class, 'exportIntellectualProperties'])->name('public.intellectual-properties.export');
+
 Route::get('/dashboard', function () {
     return auth()->user()->role === 'admin'
         ? redirect()->route('admin.dashboard')
