@@ -33,6 +33,7 @@ const applyFilters = () => router.get(route('admin.intellectual-properties.index
 });
 
 const exportUrl = () => route('admin.intellectual-properties.export', filterForm.value);
+const visualizationUrl = () => route('admin.intellectual-properties.visualization-template', filterForm.value);
 const submitImport = () => importForm.post(route('admin.intellectual-properties.import'), {
     forceFormData: true,
     preserveScroll: true,
@@ -103,7 +104,7 @@ onBeforeUnmount(() => chartInstance?.destroy());
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <a :href="exportUrl()" class="btn-primary">Export Excel</a>
-                <a :href="route('admin.intellectual-properties.import-template')" class="inline-flex min-h-10 items-center rounded-lg border border-aski-200 bg-white px-3 py-2 text-sm font-semibold text-aski-700 hover:bg-aski-50">Template</a>
+                <a :href="visualizationUrl()" class="inline-flex min-h-10 items-center rounded-lg border border-aski-200 bg-white px-3 py-2 text-sm font-semibold text-aski-700 hover:bg-aski-50">Visualisasi Template</a>
                 <input id="hki-import-file" ref="importInput" type="file" accept=".xlsx,.csv" class="sr-only" @change="onImportFileSelected" />
                 <button type="button" class="inline-flex min-h-10 items-center rounded-lg border border-aski-200 bg-white px-3 py-2 text-sm font-semibold text-aski-700 hover:bg-aski-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aski-700" :disabled="importForm.processing" @click="chooseImportFile">{{ importForm.processing ? 'Mengimporâ€¦' : 'Import Excel' }}</button>
             </div>

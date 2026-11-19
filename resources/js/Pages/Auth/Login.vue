@@ -2,6 +2,7 @@
 import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 defineProps({
     canResetPassword: {
@@ -17,6 +18,7 @@ const form = useForm({
     password: '',
     remember: false,
 });
+const showPassword = ref(false);
 
 const submit = () => {
     form.post(route('login'), {
@@ -28,7 +30,7 @@ const submit = () => {
 <template>
     <Head title="Masuk" />
 
-    <div class="min-h-screen bg-white lg:grid lg:grid-cols-[1fr_520px]">
+    <div class="motion-page-enter min-h-screen bg-white lg:grid lg:grid-cols-[1fr_520px]">
         <section class="relative hidden overflow-hidden bg-aski-900 px-12 py-10 text-white lg:flex lg:flex-col lg:justify-between">
             <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-aski-800 to-transparent"></div>
             <div class="relative">
@@ -106,15 +108,27 @@ const submit = () => {
 
                         <div>
                             <label for="password" class="text-sm font-semibold text-aski-900">Kata Sandi</label>
-                            <input
-                                id="password"
-                                v-model="form.password"
-                                type="password"
-                                required
-                                autocomplete="current-password"
-                                class="mt-2 block w-full rounded-lg border-slate-300 focus:border-aski-700 focus:ring-aski-700"
-                                placeholder="Masukkan kata sandi"
-                            />
+                            <div class="relative mt-2">
+                                <input
+                                    id="password"
+                                    v-model="form.password"
+                                    :type="showPassword ? 'text' : 'password'"
+                                    required
+                                    autocomplete="current-password"
+                                    class="block w-full rounded-lg border-slate-300 pe-12 focus:border-aski-700 focus:ring-aski-700"
+                                    placeholder="Masukkan kata sandi"
+                                />
+                                <button
+                                    type="button"
+                                    class="absolute inset-y-0 end-0 inline-flex w-11 items-center justify-center rounded-e-lg text-slate-500 transition hover:text-aski-800 focus-visible:z-10"
+                                    :aria-label="showPassword ? 'Sembunyikan kata sandi' : 'Lihat kata sandi'"
+                                    :aria-pressed="showPassword"
+                                    @click="showPassword = !showPassword"
+                                >
+                                    <svg v-if="!showPassword" aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                    <svg v-else aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8" /><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6 0 9.5 7 9.5 7a16 16 0 0 1-3.1 3.8M6.2 6.2C3.8 7.8 2.5 12 2.5 12s3.5 7 9.5 7c1 0 1.9-.2 2.8-.5" /></svg>
+                                </button>
+                            </div>
                             <InputError class="mt-2" :message="form.errors.password" />
                         </div>
 

@@ -12,7 +12,10 @@ class TrustProxies extends Middleware
      *
      * @var array<int, string>|string|null
      */
-    protected $proxies;
+    // Cloudflare Tunnel forwards requests to this local Laravel server from loopback.
+    // Trust only local proxy addresses so forwarded HTTPS headers are recognized
+    // without accepting spoofed proxy headers from arbitrary clients.
+    protected $proxies = '127.0.0.1,::1';
 
     /**
      * The headers that should be used to detect proxies.

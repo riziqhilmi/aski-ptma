@@ -9,6 +9,65 @@
         @apply outline outline-2 outline-offset-2 outline-aski-700;
     }
 }
+
+@keyframes motion-page-enter {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.99);
+        filter: blur(3px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+.motion-page-enter {
+    animation: motion-page-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.motion-reveal {
+    opacity: 0;
+    translate: 0 24px;
+    scale: 0.985;
+    transition:
+        opacity 680ms cubic-bezier(0.22, 1, 0.36, 1),
+        translate 680ms cubic-bezier(0.22, 1, 0.36, 1),
+        scale 680ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 240ms ease,
+        border-color 240ms ease;
+    transition-delay: var(--motion-delay, 0ms);
+}
+
+.motion-reveal.motion-visible {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .motion-reveal.motion-visible:is(article, a):hover {
+        translate: 0 -5px;
+        scale: 1.008;
+        box-shadow: 0 18px 36px -24px rgb(15 23 42 / 36%);
+        transition-delay: 0ms;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .motion-page-enter,
+    .motion-reveal,
+    .motion-reveal.motion-visible {
+        animation: none;
+        opacity: 1;
+        translate: none;
+        scale: 1;
+        transition: none;
+    }
+}
+
 @layer components {
     .btn-primary { @apply inline-flex items-center justify-center rounded-lg bg-aski-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-aski-800 focus:outline-none focus:ring-2 focus:ring-aski-500 focus:ring-offset-2; }
     .card { @apply rounded-xl border border-slate-100 bg-white shadow-sm; }

@@ -1,18 +1,51 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { formatDateTime } from '@/utils/date';
 
 defineProps({ latestArticles: Array });
+
+const pageRoot = ref(null);
+let revealObserver;
+
+onMounted(() => {
+    const elements = pageRoot.value?.querySelectorAll('[data-motion]') ?? [];
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+
+    elements.forEach((element) => element.classList.add('motion-reveal'));
+
+    if (!('IntersectionObserver' in window)) {
+        elements.forEach((element) => element.classList.add('motion-visible'));
+        return;
+    }
+
+    revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('motion-visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -32px 0px' });
+
+    elements.forEach((element) => revealObserver.observe(element));
+});
+
+onBeforeUnmount(() => revealObserver?.disconnect());
 </script>
 
 <template>
     <Head title="Beranda" />
     <PublicLayout>
+        <div ref="pageRoot">
         <section class="relative isolate overflow-hidden bg-aski-900 text-white">
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(25,135,84,0.4),transparent_55%)]"></div>
             <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-24">
-                <div>
+                <div data-motion>
                     <div class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-aski-100">
                         <span class="h-2 w-2 rounded-full bg-gold-400"></span>
                         Asosiasi Sentra Kekayaan Intelektual
@@ -21,11 +54,12 @@ defineProps({ latestArticles: Array });
                     <p class="mt-6 max-w-2xl text-base leading-7 text-aski-100 sm:text-lg sm:leading-8">Sistem informasi ASKI-PTMA untuk mendukung layanan keanggotaan dan pencatatan data kekayaan intelektual Perguruan Tinggi Muhammadiyah dan 'Aisyiyah.</p>
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                         <Link :href="$page.props.auth.user ? route('dashboard') : route('login')" class="inline-flex min-h-12 items-center justify-center rounded-lg bg-gold-400 px-5 py-3 text-sm font-bold text-aski-900 shadow-sm transition hover:bg-gold-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">{{ $page.props.auth.user ? 'Buka Dashboard' : 'Masuk ke Sistem' }}</Link>
+                        <Link v-if="!$page.props.auth.user" :href="route('register')" class="inline-flex min-h-12 items-center justify-center rounded-lg border border-white/30 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Daftar Member</Link>
                         <Link :href="route('public.profile')" class="inline-flex min-h-12 items-center justify-center rounded-lg border border-white/30 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Kenali ASKI-PTMA</Link>
                     </div>
                 </div>
-                <div class="relative mx-auto w-full max-w-md">
-                    <div class="absolute -inset-3 rotate-2 rounded-[2rem] border border-gold-400/40"></div>
+                <div data-motion class="relative mx-auto w-full max-w-md" style="--motion-delay: 120ms">
+                    <div class="hero-outline absolute -inset-3 rotate-2 rounded-[2rem] border border-gold-400/40"></div>
                     <div class="relative overflow-hidden rounded-[1.75rem] border border-white/15 bg-white p-6 text-aski-900 shadow-2xl sm:p-8">
                         <div class="flex items-center gap-4 border-b border-slate-100 pb-6">
                             <img src="/images/logo-aski.png" alt="Logo ASKI-PTMA" class="h-16 w-16 shrink-0 object-contain sm:h-20 sm:w-20" />
@@ -56,7 +90,7 @@ defineProps({ latestArticles: Array });
 
         <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
             <div class="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
-                <div>
+                <div data-motion>
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-aski-700">Kabar organisasi</p>
                     <h2 class="mt-2 text-2xl font-bold tracking-tight text-aski-900 sm:text-3xl">Berita terbaru</h2>
                     <p class="mt-2 max-w-xl text-sm leading-6 text-slate-600">Informasi dan pembaruan dari ASKI-PTMA.</p>
@@ -64,7 +98,7 @@ defineProps({ latestArticles: Array });
                 <Link :href="route('public.articles.index')" class="inline-flex min-h-10 items-center gap-2 self-start rounded-lg px-3 text-sm font-semibold text-aski-700 transition hover:bg-aski-50 hover:text-aski-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aski-700 sm:self-auto">Lihat semua berita <span aria-hidden="true">→</span></Link>
             </div>
             <div class="mt-7 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                <Link v-for="article in latestArticles" :key="article.id" :href="route('public.articles.show', article.slug)" class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-aski-200 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aski-700">
+                <Link v-for="(article, index) in latestArticles" :key="article.id" :href="route('public.articles.show', article.slug)" data-motion :style="{ '--motion-delay': `${Math.min(index * 70, 280)}ms` }" class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-aski-200 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aski-700">
                     <img v-if="article.cover_image_url" :src="article.cover_image_url" :alt="article.title" class="h-48 w-full object-cover transition duration-300 group-hover:scale-[1.02]" />
                     <div v-else class="grid h-48 place-items-center bg-aski-50"><img src="/images/logo-aski.png" alt="" class="h-20 w-20 object-contain" /></div>
                     <div class="p-5 sm:p-6">
@@ -80,5 +114,48 @@ defineProps({ latestArticles: Array });
                 </div>
             </div>
         </section>
+        </div>
     </PublicLayout>
 </template>
+
+<style scoped>
+.motion-reveal {
+    opacity: 0;
+    translate: 0 24px;
+    scale: 0.985;
+    transition:
+        opacity 680ms cubic-bezier(0.22, 1, 0.36, 1),
+        translate 680ms cubic-bezier(0.22, 1, 0.36, 1),
+        scale 680ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--motion-delay, 0ms);
+}
+
+.motion-visible {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+}
+
+.hero-outline {
+    animation: gentle-float 7s ease-in-out infinite;
+}
+
+@keyframes gentle-float {
+    0%, 100% { transform: rotate(2deg) translateY(0); }
+    50% { transform: rotate(2deg) translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .motion-reveal,
+    .motion-visible {
+        opacity: 1;
+        translate: none;
+        scale: 1;
+        transition: none;
+    }
+
+    .hero-outline {
+        animation: none;
+    }
+}
+</style>

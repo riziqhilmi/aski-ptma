@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\IntellectualPropertiesExport;
+use App\Exports\IntellectualPropertiesVisualizationExport;
 use App\Imports\IntellectualPropertiesImport;
 use App\Http\Controllers\Controller;
 use App\Models\IntellectualProperty;
@@ -65,6 +66,19 @@ class IntellectualPropertyController extends Controller
             ->get();
 
         return Excel::download(new IntellectualPropertiesExport($records), 'data-hki-'.now()->format('Ymd-His').'.xlsx');
+    }
+
+    public function visualizationTemplate(Request $request): BinaryFileResponse
+    {
+        $this->authorize('viewAny', IntellectualProperty::class);
+
+        $group = $request->input('group') === 'year' ? 'year' : 'month';
+        $filters = $request->only(['period_start', 'period_end', 'institution', 'type']);
+
+        return Excel::download(
+            new IntellectualPropertiesVisualizationExport($this->report->chart($request), $group, $filters),
+            'visualisasi-data-hki-'.now()->format('Ymd-His').'.xlsx',
+        );
     }
 
     public function importTemplate(): BinaryFileResponse

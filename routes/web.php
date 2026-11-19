@@ -93,6 +93,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/payment-settings', [PaymentSettingController::class, 'edit'])->name('payment-settings.edit');
     Route::put('/payment-settings', [PaymentSettingController::class, 'update'])->name('payment-settings.update');
     Route::get('/intellectual-properties/export', [AdminIntellectualPropertyController::class, 'export'])->name('intellectual-properties.export');
+    Route::get('/intellectual-properties/visualization-template', [AdminIntellectualPropertyController::class, 'visualizationTemplate'])->name('intellectual-properties.visualization-template');
     Route::get('/intellectual-properties/import-template', [AdminIntellectualPropertyController::class, 'importTemplate'])->name('intellectual-properties.import-template');
     Route::post('/intellectual-properties/import', [AdminIntellectualPropertyController::class, 'import'])->name('intellectual-properties.import');
     Route::get('/intellectual-properties', [AdminIntellectualPropertyController::class, 'index'])->name('intellectual-properties.index');
@@ -130,6 +131,7 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     Route::post('/invoices/{invoice}/payments', [MemberPaymentController::class, 'store'])->name('invoices.payments.store');
     Route::get('/payments/{payment}/proof', [MemberPaymentController::class, 'proof'])->name('payments.proof');
     Route::get('/payments/{payment}/receipt', [MemberPaymentController::class, 'receipt'])->name('payments.receipt');
+    Route::post('/intellectual-properties/import', [MemberIntellectualPropertyController::class, 'import'])->name('intellectual-properties.import');
     Route::resource('intellectual-properties', MemberIntellectualPropertyController::class)
         ->parameters(['intellectual-properties' => 'intellectualProperty']);
     Route::get('/documents', [MemberDocumentController::class, 'index'])->name('documents.index');
